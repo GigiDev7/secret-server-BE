@@ -12,7 +12,7 @@ const secretSchema = new mongoose.Schema(
       required: [true, "Secret text is required"],
     },
     expiresAt: {
-      type: Date,
+      type: String,
       required: [true, "Expiration time is required"],
     },
   },
@@ -20,6 +20,11 @@ const secretSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+secretSchema.virtual("iv").get(function () {
+  const ind = this.hash.indexOf("-");
+  return this.hash.slice(ind + 1);
+});
 
 const Secret = mongoose.model("Secret", secretSchema);
 
