@@ -1,10 +1,12 @@
 const Secret = require("../models/secret");
-const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
 
-const secretHash = async () => {
-  const salt = await bcrypt.genSalt(10);
-  return salt;
+const generateHash = async (secretText) => {
+  const salt = await bcrypt.genSalt(12);
+  let hash = await bcrypt.hash(secretText, salt);
+  hash = hash.replace(/\//g, ".");
+  return hash;
 };
 
 const algorithm = process.env.CRYPTO_ALGORITHM;
@@ -34,7 +36,7 @@ const decrypt = (iv, encryptedData) => {
 };
 
 const addNewSecret = async (secretData) => {
-  const hash = await secretHash(secretData.secretText);
+  const hash = await generateHash(secretData.secretText);
   const { iv, encryptedSecretText } = encrypt(secretData.secretText);
   const secret = await Secret.create({
     hash: `${hash}-${iv}`,
@@ -44,6 +46,13 @@ const addNewSecret = async (secretData) => {
   return secret;
 };
 
+const findSingleSecret = async (hash) => {
+  const secret = await Secret.findOne({ hash });
+  const decryptedText = decrypt(secret.iv, secret.secretText);
+  return { secret, decryptedText };
+};
+
 module.exports = {
   addNewSecret,
+  findSingleSecret,
 };
