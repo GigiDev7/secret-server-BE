@@ -5,7 +5,6 @@ const createSecret = async (req, res) => {
     const secret = await addNewSecret(req.body);
     res.status(201).json(secret);
   } catch (err) {
-    console.log(err);
     res.status(400).json(err);
   }
 };

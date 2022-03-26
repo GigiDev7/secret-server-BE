@@ -5,7 +5,9 @@ const bcrypt = require("bcrypt");
 const generateHash = async (secretText) => {
   const salt = await bcrypt.genSalt(12);
   let hash = await bcrypt.hash(secretText, salt);
-  hash = hash.replace(/\//g, ".");
+  if (hash.includes("/")) {
+    hash = hash.replace(/\//g, ".");
+  }
   return hash;
 };
 
